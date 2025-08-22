@@ -1,0 +1,1979 @@
+<!DOCTYPE html>
+<html>
+<head>
+            <style>.lw { font-size: 60px; }</style>
+        <link id="appwriter-cloud-style" type="text/css" rel="stylesheet" href="chrome-extension://lokadhdaghfjbmailhhenifjejpokche/css/content.css"></head>
+        <body data-new-gr-c-s-check-loaded="14.1250.0" data-gr-ext-installed="">
+            
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vandkvalitet i Gentofte Kommune</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f8ff;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #1a75bc, #4ca1e0);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+        
+        .subtitle {
+            margin-top: 5px;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #eef7ff;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .tab:hover {
+            background: #d1e7ff;
+        }
+        
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid #1a75bc;
+            color: #1a75bc;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 25px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #444;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .btn {
+            background: #1a75bc;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #155a94;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        #map-container {
+            margin-top: 20px;
+            position: relative;
+        }
+        
+        #map {
+            height: 500px;
+            border-radius: 8px;
+            width: 100%;
+        }
+        
+        #input-map {
+            height: 250px;
+            border-radius: 8px;
+            width: 100%;
+            margin-top: 10px;
+            cursor: crosshair;
+        }
+        
+        .legend {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .legend h3 {
+            margin-top: 0;
+            color: #1a75bc;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .legend-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .quality-good { background-color: #2ecc71; }
+        .quality-medium { background-color: #f39c12; }
+        .quality-poor { background-color: #e74c3c; }
+        
+        .admin-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .data-table th {
+            background-color: #1a75bc;
+            color: white;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .quality-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        .notification {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            display: none;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .conclusion {
+            background: #f8f9fa;
+            border-left: 4px solid #1a75bc;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 6px 6px 0;
+        }
+        
+        .conclusion h3 {
+            margin-top: 0;
+            color: #1a75bc;
+        }
+        
+        .observation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .observation-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #1a75bc;
+        }
+        
+        .observation-card h4 {
+            margin-top: 0;
+            color: #1a75bc;
+        }
+        
+        .score-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        
+        .score-good { background-color: #2ecc71; }
+        .score-medium { background-color: #f39c12; }
+        .score-poor { background-color: #e74c3c; }
+        
+        .risk-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .risk-table th, .risk-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        
+        .risk-table th {
+            background-color: #1a75bc;
+            color: white;
+        }
+        
+        .risk-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        .risk-very-low { background-color: #d4edda; color: #155724; }
+        .risk-low { background-color: #d1ecf1; color: #0c5460; }
+        .risk-medium { background-color: #fff3cd; color: #856404; }
+        .risk-high { background-color: #f8d7da; color: #721c24; }
+        .risk-very-high { background-color: #f5c6cb; color: #721c24; }
+        
+        .optional {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .info-box {
+            background-color: #e8f4fc;
+            border-left: 4px solid #1a75bc;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .species-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .species-row select {
+            flex: 1;
+        }
+        
+        .species-row input[type="text"] {
+            flex: 1;
+        }
+        
+        .species-row button {
+            padding: 8px 12px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .add-species-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .add-species-btn:hover {
+            background: #218838;
+        }
+        
+        .balance-indicator {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .balance-bar {
+            flex-grow: 1;
+            height: 20px;
+            background: linear-gradient(to right, #2ecc71, #f39c12, #e74c3c);
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .balance-marker {
+            position: absolute;
+            top: -5px;
+            width: 10px;
+            height: 30px;
+            background-color: #333;
+            border-radius: 5px;
+            transform: translateX(-50%);
+        }
+        
+        .balance-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+    </style>
+
+
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-water"></i> Vandkvalitet i Gentofte Kommune</h1>
+            <div class="subtitle">Elevernes undersøgelser af søer og vandløb</div>
+        </header>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="openTab(event, 'input-tab')">
+                <i class="fas fa-edit"></i> Indtast observation
+            </div>
+            <div class="tab" onclick="openTab(event, 'map-tab')">
+                <i class="fas fa-map-marked-alt"></i> Kort over vandkvalitet
+            </div>
+            <div class="tab" onclick="openTab(event, 'admin-tab')">
+                <i class="fas fa-user-shield"></i> Admin Panel
+            </div>
+        </div>
+        
+        <div id="input-tab" class="tab-content active">
+            <h2>Indtast din observation</h2>
+            <div class="notification success" id="success-message">
+                <i class="fas fa-check-circle"></i> Din observation er gemt!
+            </div>
+            <div class="notification error" id="error-message">
+                <i class="fas fa-exclamation-circle"></i> <span id="error-text"></span>
+            </div>
+            
+            <form id="observation-form">
+                <div class="form-group">
+                    <label for="student-name">Dit navn (valgfrit)</label>
+                    <input type="text" id="student-name" placeholder="Indtast dit navn">
+                </div>
+                
+                <div class="form-group">
+                    <label for="location">Sted (sø/vandløb)</label>
+                    <input type="text" id="location" placeholder="F.eks. Gentofte Sø" required="">
+                </div>
+                
+                <div class="form-group">
+                    <label>Vælg lokation på kortet (klik for at markere)</label>
+                    <div id="input-map"></div>
+                    <input type="hidden" id="latitude" required="">
+                    <input type="hidden" id="longitude" required="">
+                    <small id="location-status">Klik på kortet for at vælge lokation</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="date">Dato for observation</label>
+                    <input type="date" id="date" required="">
+                </div>
+                
+                <div class="observation-grid">
+                    <div class="observation-card">
+                        <h4><i class="fas fa-ruler-vertical"></i> Vandobservationer</h4>
+                        
+                        <div class="form-group">
+                            <label for="secchi-depth">Secchi-dybde (cm)</label>
+                            <input type="number" id="secchi-depth" min="0" max="500" placeholder="Mål dybden med Secchi-skive">
+                            <div class="info-box">
+                                <i class="fas fa-info-circle"></i> 
+                                <strong>Hvordan måler man med en Secchi-skive?</strong><br>
+                                En Secchi-skive bruges til at måle sigtbarheden i vandet. 
+                                Når du kan se skiven ned til en dybde på f.eks. 100 cm, 
+                                er søens sigtbarhed 200 cm (lysets vej ned til skiven OG op igen til overfladen).
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="water-clarity">Vandets klarhed</label>
+                            <select id="water-clarity" required="">
+                                <option value="">Vælg klarhed</option>
+                                <option value="clear">Klar</option>
+                                <option value="slightly-cloudy">Let uklar</option>
+                                <option value="cloudy">Meget uklar</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="water-color">Vandets farve</label>
+                            <select id="water-color" required="">
+                                <option value="">Vælg farve</option>
+                                <option value="clear">Klar/gennemsigtig</option>
+                                <option value="green">Grøn</option>
+                                <option value="brown">Brun</option>
+                                <option value="gray">Grå</option>
+                                <option value="other">Anden</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="water-smell">Vandets lugt</label>
+                            <select id="water-smell" required="">
+                                <option value="">Vælg lugt</option>
+                                <option value="none">Ingen lugt</option>
+                                <option value="earthy">Jordagtig</option>
+                                <option value="rotten">Rådden</option>
+                                <option value="chemical">Kemisk</option>
+                                <option value="other">Anden</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="observation-card">
+                        <h4><i class="fas fa-leaf"></i> Fugleobservationer</h4>
+                        
+                        <div class="form-group">
+                            <label>Tilføj fugle du har observeret:</label>
+                            <div id="bird-observations">
+                                <div class="species-row">
+                                    <select class="bird-species">
+                                        <option value="">Vælg fugleart</option>
+                                        <option value="swan">Svane</option>
+                                        <option value="grayduck">Gråand</option>
+                                        <option value="grebecrested">Toppet lappedykker</option>
+                                        <option value="heron">Gråhejre</option>
+                                        <option value="gull">Hættemåge</option>
+                                        <option value="other">Anden art</option>
+                                    </select>
+                                    <input type="text" class="bird-other" placeholder="Angiv art" style="display: none;">
+                                    <select class="bird-count">
+                                        <option value="">Antal</option>
+                                        <option value="few">Få</option>
+                                        <option value="some">Nogle</option>
+                                        <option value="many">Mange</option>
+                                    </select>
+                                    <button type="button" onclick="removeSpeciesRow(this)" style="display: none;">Fjern</button>
+                                </div>
+                            </div>
+                            <button type="button" class="add-species-btn" onclick="addBirdRow()">
+                                <i class="fas fa-plus"></i> Tilføj fugl
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="observation-card">
+                        <h4><i class="fas fa-fish"></i> Fiskeobservationer</h4>
+                        
+                        <div class="form-group">
+                            <label>Tilføj fisk du har observeret:</label>
+                            <div id="fish-observations">
+                                <div class="species-row">
+                                    <select class="fish-species">
+                                        <option value="">Vælg fiskeart</option>
+                                        <option value="perch">Aborre (rovfisk)</option>
+                                        <option value="pike">Gedde (rovfisk)</option>
+                                        <option value="rudd">Skalle (byttefisk)</option>
+                                        <option value="bream">Brasen (byttefisk)</option>
+                                        <option value="trout">Søørred</option>
+                                        <option value="other">Anden art</option>
+                                    </select>
+                                    <input type="text" class="fish-other" placeholder="Angiv art" style="display: none;">
+                                    <select class="fish-count">
+                                        <option value="">Antal</option>
+                                        <option value="few">Få</option>
+                                        <option value="some">Nogle</option>
+                                        <option value="many">Mange</option>
+                                    </select>
+                                    <button type="button" onclick="removeSpeciesRow(this)" style="display: none;">Fjern</button>
+                                </div>
+                            </div>
+                            <button type="button" class="add-species-btn" onclick="addFishRow()">
+                                <i class="fas fa-plus"></i> Tilføj fisk
+                            </button>
+                            
+                            <div class="info-box">
+                                <i class="fas fa-info-circle"></i> 
+                                <strong>Balance i søen:</strong> En sund sø har en god balance mellem rovfisk (gedde, aborre) og byttefisk (skalle, brasen). 
+                                Hvis du ser mange rovfisk og få byttefisk, kan det være et tegn på ubalance.
+                            </div>
+                            
+                            <div class="balance-indicator">
+                                <div class="balance-bar">
+                                    <div class="balance-marker" id="balance-marker" style="left: 50%;"></div>
+                                </div>
+                            </div>
+                            <div class="balance-labels">
+                                <span>Mange byttefisk</span>
+                                <span>Balanceret</span>
+                                <span>Mange rovfisk</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="observation-card">
+                        <h4><i class="fas fa-flask"></i> Kemiske målinger <span class="optional">(valgfrit)</span></h4>
+                        
+                        <div class="form-group">
+                            <label for="ph-value">pH-værdi</label>
+                            <input type="number" id="ph-value" min="0" max="14" step="0.1" placeholder="F.eks. 7.2">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phosphate-level">Fosfatniveau (ppm)</label>
+                            <input type="number" id="phosphate-level" min="0" max="10" step="0.01" placeholder="F.eks. 0.08">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="nitrate-level">Nitratniveau (ppm)</label>
+                            <input type="number" id="nitrate-level" min="0" max="100" step="0.1" placeholder="F.eks. 2.5">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Risiko for iltsvind baseret på kemiske målinger</label>
+                            <table class="risk-table" id="risk-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nitrat (ppm)</th>
+                                        <th>Fosfat (ppm)</th>
+                                        <th>Sandsynlighed for iltsvind</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>&lt; 1</td>
+                                        <td>&lt; 0.05</td>
+                                        <td class="risk-very-low">Meget lav</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1–5</td>
+                                        <td>0.05–0.1</td>
+                                        <td class="risk-low">Lav</td>
+                                    </tr>
+                                    <tr>
+                                        <td>&gt; 5</td>
+                                        <td>&gt; 0.1</td>
+                                        <td class="risk-high">Høj</td>
+                                    </tr>
+                                    <tr>
+                                        <td>&gt; 5</td>
+                                        <td>&gt; 0.2</td>
+                                        <td class="risk-very-high">Meget høj</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="observation-card">
+                        <h4><i class="fas fa-comment"></i> Andre observationer</h4>
+                        
+                        <div class="form-group">
+                            <label for="plants">Planter ved bredden</label>
+                            <select id="plants" required="">
+                                <option value="">Vælg plantemængde</option>
+                                <option value="many">Mange sunde planter</option>
+                                <option value="some">Nogle planter</option>
+                                <option value="few">Få eller ingen planter</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="observations">Beskriv dine observationer</label>
+                            <textarea id="observations" placeholder="Beskriv hvad du observerede..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <input type="hidden" id="quality" value="">
+                
+                <div id="conclusion" class="conclusion" style="display: none;">
+                    <h3>Automatisk konklusion</h3>
+                    <div id="conclusion-text"></div>
+                </div>
+                
+                <button type="submit" class="btn">
+                    <i class="fas fa-save"></i> Gem observation
+                </button>
+            </form>
+        </div>
+        
+        <div id="map-tab" class="tab-content">
+            <h2>Kort over vandkvalitet i Gentofte Kommune</h2>
+            <p>Kortet viser alle indtastede observationer med farvekoder for vandkvalitet:</p>
+            
+            <div class="legend">
+                <h3>Forklaring af farver</h3>
+                <div class="legend-item">
+                    <div class="legend-color quality-good"></div>
+                    <span>God vandkvalitet</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color quality-medium"></div>
+                    <span>Middel vandkvalitet</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color quality-poor"></div>
+                    <span>Dårlig vandkvalitet</span>
+                </div>
+            </div>
+            
+            <div id="map-container">
+                <div id="map"></div>
+                <div id="map-loading" class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Indlæser kort...
+                </div>
+            </div>
+        </div>
+        
+        <div id="admin-tab" class="tab-content">
+            <h2>Admin Panel</h2>
+            
+            <div id="login-area" class="admin-panel">
+                <div class="login-form">
+                    <h3>Log ind som administrator</h3>
+                    <p>Indtast adgangskode for at administrere observationer</p>
+                    
+                    <div class="form-group">
+                        <input type="password" id="admin-password" placeholder="Adgangskode">
+                    </div>
+                    
+                    <button class="btn" onclick="adminLogin()">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </div>
+            </div>
+            
+            <div id="admin-content" class="admin-panel" style="display: none;">
+                <h3>Administrer observationer</h3>
+                <button class="btn" onclick="logoutAdmin()">
+                    <i class="fas fa-sign-out-alt"></i> Log ud
+                </button>
+                
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Sted</th>
+                            <th>Dato</th>
+                            <th>Vandkvalitet</th>
+                            <th>Elev</th>
+                            <th>Handlinger</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-data">
+                        <!-- Data vil blive indlæst her -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal til detaljer -->
+    <div id="detail-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h2>Observationsdetaljer</h2>
+            <div id="modal-content">
+                <!-- Indhold vil blive indlæst her -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Firebase konfiguration - ERSTAT MED DIN EGEN KONFIGURATION
+        const firebaseConfig = {
+            apiKey: "DIN_API_KEY",
+            authDomain: "DIT_AUTH_DOMAIN",
+            databaseURL: "DIN_DATABASE_URL",
+            projectId: "DIT_PROJECT_ID",
+            storageBucket: "DIN_STORAGE_BUCKET",
+            messagingSenderId: "DIN_MESSAGING_SENDER_ID",
+            appId: "DIN_APP_ID"
+        };
+        
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        // Global variabel til at spore om kortet skal opdateres
+        let mapNeedsUpdate = false;
+        
+        // Initialisering
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sæt dagens dato som standard
+            document.getElementById('date').valueAsDate = new Date();
+            
+            // Initialiser input kort
+            initInputMap();
+            
+            // Indlæs gemte data
+            loadAdminData();
+            
+            // Tilføj event listeners til observation felter
+            const observationFields = [
+                'secchi-depth', 'water-clarity', 'water-color', 'water-smell',
+                'plants', 'ph-value', 'phosphate-level', 'nitrate-level'
+            ];
+            
+            observationFields.forEach(field => {
+                document.getElementById(field).addEventListener('change', updateConclusion);
+            });
+            
+            // Tilføj event listeners til første række af fugle og fisk
+            addEventListenersToSpeciesRows();
+        });
+        
+        // Firebase funktioner
+        function saveObservation(observation) {
+            return database.ref('observations').push(observation);
+        }
+        
+        function getObservations() {
+            return new Promise((resolve, reject) => {
+                database.ref('observations').once('value')
+                    .then(snapshot => {
+                        const observations = [];
+                        snapshot.forEach(childSnapshot => {
+                            observations.push({
+                                id: childSnapshot.key,
+                                ...childSnapshot.val()
+                            });
+                        });
+                        resolve(observations);
+                    })
+                    .catch(error => {
+                        reject(error);
+                    });
+            });
+        }
+        
+        function deleteObservation(id) {
+            return database.ref('observations/' + id).remove();
+        }
+        
+        // Tilføj event listeners til eksisterende arter
+        function addEventListenersToSpeciesRows() {
+            // Fugle event listeners
+            const birdSpeciesSelects = document.querySelectorAll('.bird-species');
+            const birdCounts = document.querySelectorAll('.bird-count');
+            const birdOthers = document.querySelectorAll('.bird-other');
+            
+            birdSpeciesSelects.forEach(select => {
+                select.addEventListener('change', function() {
+                    const row = this.closest('.species-row');
+                    const otherInput = row.querySelector('.bird-other');
+                    const removeBtn = row.querySelector('button');
+                    
+                    if (this.value === 'other') {
+                        otherInput.style.display = 'block';
+                    } else {
+                        otherInput.style.display = 'none';
+                    }
+                    
+                    if (birdSpeciesSelects.length > 1) {
+                        removeBtn.style.display = 'block';
+                    }
+                    
+                    updateConclusion();
+                });
+            });
+            
+            birdOthers.forEach(input => {
+                input.addEventListener('input', updateConclusion);
+            });
+            
+            birdCounts.forEach(select => {
+                select.addEventListener('change', updateConclusion);
+            });
+            
+            // Fisk event listeners
+            const fishSpeciesSelects = document.querySelectorAll('.fish-species');
+            const fishCounts = document.querySelectorAll('.fish-count');
+            const fishOthers = document.querySelectorAll('.fish-other');
+            
+            fishSpeciesSelects.forEach(select => {
+                select.addEventListener('change', function() {
+                    const row = this.closest('.species-row');
+                    const otherInput = row.querySelector('.fish-other');
+                    const removeBtn = row.querySelector('button');
+                    
+                    if (this.value === 'other') {
+                        otherInput.style.display = 'block';
+                    } else {
+                        otherInput.style.display = 'none';
+                    }
+                    
+                    if (fishSpeciesSelects.length > 1) {
+                        removeBtn.style.display = 'block';
+                    }
+                    
+                    updateConclusion();
+                });
+            });
+            
+            fishOthers.forEach(input => {
+                input.addEventListener('input', updateConclusion);
+            });
+            
+            fishCounts.forEach(select => {
+                select.addEventListener('change', updateConclusion);
+            });
+        }
+        
+        // Tilføj fuglerække
+        function addBirdRow() {
+            const container = document.getElementById('bird-observations');
+            const newRow = document.createElement('div');
+            newRow.className = 'species-row';
+            newRow.innerHTML = `
+                <select class="bird-species">
+                    <option value="">Vælg fugleart</option>
+                    <option value="swan">Svane</option>
+                    <option value="grayduck">Gråand</option>
+                    <option value="grebecrested">Toppet lappedykker</option>
+                    <option value="heron">Gråhejre</option>
+                    <option value="gull">Hættemåge</option>
+                    <option value="other">Anden art</option>
+                </select>
+                <input type="text" class="bird-other" placeholder="Angiv art" style="display: none;">
+                <select class="bird-count">
+                    <option value="">Antal</option>
+                    <option value="few">Få</option>
+                    <option value="some">Nogle</option>
+                    <option value="many">Mange</option>
+                </select>
+                <button type="button" onclick="removeSpeciesRow(this)">Fjern</button>
+            `;
+            container.appendChild(newRow);
+            
+            // Tilføj event listeners til nye elementer
+            const select = newRow.querySelector('.bird-species');
+            const otherInput = newRow.querySelector('.bird-other');
+            const countSelect = newRow.querySelector('.bird-count');
+            
+            select.addEventListener('change', function() {
+                if (this.value === 'other') {
+                    otherInput.style.display = 'block';
+                } else {
+                    otherInput.style.display = 'none';
+                }
+                updateConclusion();
+            });
+            
+            otherInput.addEventListener('input', updateConclusion);
+            countSelect.addEventListener('change', updateConclusion);
+        }
+        
+        // Tilføj fiskerække
+        function addFishRow() {
+            const container = document.getElementById('fish-observations');
+            const newRow = document.createElement('div');
+            newRow.className = 'species-row';
+            newRow.innerHTML = `
+                <select class="fish-species">
+                    <option value="">Vælg fiskeart</option>
+                    <option value="perch">Aborre (rovfisk)</option>
+                    <option value="pike">Gedde (rovfisk)</option>
+                    <option value="rudd">Skalle (byttefisk)</option>
+                    <option value="bream">Brasen (byttefisk)</option>
+                    <option value="trout">Søørred</option>
+                    <option value="other">Anden art</option>
+                </select>
+                <input type="text" class="fish-other" placeholder="Angiv art" style="display: none;">
+                <select class="fish-count">
+                    <option value="">Antal</option>
+                    <option value="few">Få</option>
+                    <option value="some">Nogle</option>
+                    <option value="many">Mange</option>
+                </select>
+                <button type="button" onclick="removeSpeciesRow(this)">Fjern</button>
+            `;
+            container.appendChild(newRow);
+            
+            // Tilføj event listeners til nye elementer
+            const select = newRow.querySelector('.fish-species');
+            const otherInput = newRow.querySelector('.fish-other');
+            const countSelect = newRow.querySelector('.fish-count');
+            
+            select.addEventListener('change', function() {
+                if (this.value === 'other') {
+                    otherInput.style.display = 'block';
+                } else {
+                    otherInput.style.display = 'none';
+                }
+                updateConclusion();
+            });
+            
+            otherInput.addEventListener('input', updateConclusion);
+            countSelect.addEventListener('change', updateConclusion);
+        }
+        
+        // Fjern arterække
+        function removeSpeciesRow(button) {
+            const row = button.closest('.species-row');
+            row.remove();
+            updateConclusion();
+        }
+        
+        // Tab-funktion
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            const tabs = document.getElementsByClassName('tab');
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+            
+            // Opdater kort når kort-tab åbnes
+            if (tabName === 'map-tab') {
+                // Vis loading-indikator
+                document.getElementById('map-loading').style.display = 'block';
+                
+                // Vent lidt for at sikre at containeren er synlig
+                setTimeout(() => {
+                    initMap();
+                    loadMapData();
+                    document.getElementById('map-loading').style.display = 'none';
+                }, 300);
+            }
+        }
+        
+        // Input kort initialisering
+        let inputMap;
+        let selectedMarker;
+        
+        function initInputMap() {
+            inputMap = L.map('input-map').setView([55.7709, 12.5734], 12);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(inputMap);
+            
+            inputMap.on('click', function(e) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+                
+                // Fjern eksisterende markør
+                if (selectedMarker) {
+                    inputMap.removeLayer(selectedMarker);
+                }
+                
+                // Tilføj ny markør
+                selectedMarker = L.marker([lat, lng]).addTo(inputMap);
+                
+                // Opdater skjulte felter
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lng;
+                
+                // Opdater status
+                document.getElementById('location-status').textContent = 
+                    `Lokation valgt: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                document.getElementById('location-status').style.color = '#2ecc71';
+            });
+        }
+        
+        // Opdater konklusion baseret på observationer
+        function updateConclusion() {
+            const secchiDepth = parseInt(document.getElementById('secchi-depth').value) || 0;
+            const waterClarity = document.getElementById('water-clarity').value;
+            const waterColor = document.getElementById('water-color').value;
+            const waterSmell = document.getElementById('water-smell').value;
+            const plants = document.getElementById('plants').value;
+            
+            // Nye kemiske målinger
+            const phValue = parseFloat(document.getElementById('ph-value').value);
+            const phosphateLevel = parseFloat(document.getElementById('phosphate-level').value);
+            const nitrateLevel = parseFloat(document.getElementById('nitrate-level').value);
+            
+            // Saml fugleobservationer
+            const birdRows = document.querySelectorAll('#bird-observations .species-row');
+            let birdObservations = [];
+            let birdCount = 0;
+            let birdDiversity = 0;
+            
+            birdRows.forEach(row => {
+                const speciesSelect = row.querySelector('.bird-species');
+                const countSelect = row.querySelector('.bird-count');
+                const otherInput = row.querySelector('.bird-other');
+                
+                if (speciesSelect.value && countSelect.value) {
+                    let speciesName = '';
+                    if (speciesSelect.value === 'other') {
+                        speciesName = otherInput.value || 'Anden art';
+                    } else {
+                        const speciesMap = {
+                            'swan': 'Svane',
+                            'grayduck': 'Gråand',
+                            'grebecrested': 'Toppet lappedykker',
+                            'heron': 'Gråhejre',
+                            'gull': 'Hættemåge'
+                        };
+                        speciesName = speciesMap[speciesSelect.value] || speciesSelect.value;
+                    }
+                    
+                    birdObservations.push({
+                        species: speciesName,
+                        count: countSelect.value
+                    });
+                    
+                    birdCount++;
+                    birdDiversity++;
+                }
+            });
+            
+            // Saml fiskeobservationer
+            const fishRows = document.querySelectorAll('#fish-observations .species-row');
+            let fishObservations = [];
+            let predatorCount = 0;
+            let preyCount = 0;
+            let fishDiversity = 0;
+            
+            fishRows.forEach(row => {
+                const speciesSelect = row.querySelector('.fish-species');
+                const countSelect = row.querySelector('.fish-count');
+                const otherInput = row.querySelector('.fish-other');
+                
+                if (speciesSelect.value && countSelect.value) {
+                    let speciesName = '';
+                    let fishType = '';
+                    
+                    if (speciesSelect.value === 'other') {
+                        speciesName = otherInput.value || 'Anden art';
+                        fishType = 'unknown';
+                    } else {
+                        const speciesMap = {
+                            'perch': { name: 'Aborre', type: 'predator' },
+                            'pike': { name: 'Gedde', type: 'predator' },
+                            'rudd': { name: 'Skalle', type: 'prey' },
+                            'bream': { name: 'Brasen', type: 'prey' },
+                            'trout': { name: 'Søørred', type: 'predator' }
+                        };
+                        speciesName = speciesMap[speciesSelect.value].name;
+                        fishType = speciesMap[speciesSelect.value].type;
+                    }
+                    
+                    fishObservations.push({
+                        species: speciesName,
+                        type: fishType,
+                        count: countSelect.value
+                    });
+                    
+                    fishDiversity++;
+                    
+                    if (fishType === 'predator') {
+                        if (countSelect.value === 'many') predatorCount += 3;
+                        else if (countSelect.value === 'some') predatorCount += 2;
+                        else if (countSelect.value === 'few') predatorCount += 1;
+                    } else if (fishType === 'prey') {
+                        if (countSelect.value === 'many') preyCount += 3;
+                        else if (countSelect.value === 'some') preyCount += 2;
+                        else if (countSelect.value === 'few') preyCount += 1;
+                    }
+                }
+            });
+            
+            // Beregn balance mellem rovfisk og byttefisk
+            let fishBalance = 0.5; // 0 = mange byttefisk, 1 = mange rovfisk
+            if (predatorCount > 0 || preyCount > 0) {
+                fishBalance = predatorCount / (predatorCount + preyCount);
+            }
+            
+            // Opdater balance-indikator
+            document.getElementById('balance-marker').style.left = (fishBalance * 100) + '%';
+            
+            // Beregn score for hver parameter
+            let scores = [];
+            
+            // Secchi-dybde score
+            if (secchiDepth >= 100) scores.push(3);
+            else if (secchiDepth >= 50) scores.push(2);
+            else if (secchiDepth > 0) scores.push(1);
+            
+            // Vandklarhed score
+            if (waterClarity === 'clear') scores.push(3);
+            else if (waterClarity === 'slightly-cloudy') scores.push(2);
+            else if (waterClarity === 'cloudy') scores.push(1);
+            
+            // Vandfarve score
+            if (waterColor === 'clear') scores.push(3);
+            else if (waterColor === 'green' || waterColor === 'brown') scores.push(2);
+            else scores.push(1);
+            
+            // Lugt score
+            if (waterSmell === 'none') scores.push(3);
+            else if (waterSmell === 'earthy') scores.push(2);
+            else scores.push(1);
+            
+            // Planter score
+            if (plants === 'many') scores.push(3);
+            else if (plants === 'some') scores.push(2);
+            else if (plants === 'few') scores.push(1);
+            
+            // pH score (6.5-8.5 er optimalt)
+            if (phValue >= 6.5 && phValue <= 8.5) scores.push(3);
+            else if (phValue >= 6 && phValue <= 9) scores.push(2);
+            else if (phValue) scores.push(1);
+            
+            // Fosfat score
+            if (phosphateLevel < 0.05) scores.push(3);
+            else if (phosphateLevel < 0.1) scores.push(2);
+            else if (phosphateLevel) scores.push(1);
+            
+            // Nitrat score
+            if (nitrateLevel < 1) scores.push(3);
+            else if (nitrateLevel < 5) scores.push(2);
+            else if (nitrateLevel) scores.push(1);
+            
+            // Fugleobservationer score
+            if (birdCount >= 2) scores.push(3);
+            else if (birdCount >= 1) scores.push(2);
+            else scores.push(1);
+            
+            // Fiskebalance score (optimalt er omkring 0.4-0.6)
+            if (fishBalance >= 0.4 && fishBalance <= 0.6) scores.push(3);
+            else if (fishBalance >= 0.3 && fishBalance <= 0.7) scores.push(2);
+            else scores.push(1);
+            
+            // Score for fiskearters mangfoldighed
+            if (fishDiversity >= 3) scores.push(3);
+            else if (fishDiversity >= 2) scores.push(2);
+            else if (fishDiversity >= 1) scores.push(1);
+            
+            // Beregn gennemsnitlig score
+            const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+            
+            // Bestem konklusion
+            let conclusion, quality, colorClass;
+            if (avgScore >= 2.5) {
+                conclusion = "God vandkvalitet: Søen har en sund økosystembalance med klart vand, god dybdesynlighed og rigt dyreliv.";
+                quality = "good";
+                colorClass = "score-good";
+            } else if (avgScore >= 1.5) {
+                conclusion = "Middel vandkvalitet: Søen viser tegn på stress, men har stadig en acceptabel økosystembalance. Der bør følges op med yderligere observationer.";
+                quality = "medium";
+                colorClass = "score-medium";
+            } else {
+                conclusion = "Dårlig vandkvalitet: Søen har alvorlige problemer med forurening eller ubalance i økosystemet. Der bør træffes foranstaltninger for at forbedre vandkvaliteten.";
+                quality = "poor";
+                colorClass = "score-poor";
+            }
+            
+            // Tilføj kemisk vurdering hvis målinger er tilgængelige
+            let chemicalAssessment = "";
+            if (phosphateLevel !== undefined && nitrateLevel !== undefined) {
+                let riskLevel = "";
+                if (nitrateLevel < 1 && phosphateLevel < 0.05) {
+                    riskLevel = "meget lav";
+                } else if (nitrateLevel >= 1 && nitrateLevel <= 5 && phosphateLevel >= 0.05 && phosphateLevel <= 0.1) {
+                    riskLevel = "lav";
+                } else if (nitrateLevel > 5 && phosphateLevel > 0.1) {
+                    riskLevel = "høj";
+                } else if (nitrateLevel > 5 && phosphateLevel > 0.2) {
+                    riskLevel = "meget høj";
+                } else {
+                    riskLevel = "moderat";
+                }
+                
+                chemicalAssessment = `<p><strong>Kemisk vurdering:</strong> Risikoen for iltsvind er ${riskLevel} baseret på målingerne (nitrat: ${nitrateLevel || 'ikke målt'} ppm, fosfat: ${phosphateLevel || 'ikke målt'} ppm).</p>`;
+            }
+            
+            // Tilføj artsobservationer
+            let speciesAssessment = "";
+            if (birdObservations.length > 0 || fishObservations.length > 0) {
+                speciesAssessment = "<p><strong>Artsobservationer:</strong><br>";
+                if (birdObservations.length > 0) {
+                    speciesAssessment += `Fugle: ${birdObservations.map(b => `${b.species} (${getCountText(b.count)})`).join(', ')}<br>`;
+                }
+                if (fishObservations.length > 0) {
+                    speciesAssessment += `Fisk: ${fishObservations.map(f => `${f.species} (${getCountText(f.count)})`).join(', ')}<br>`;
+                }
+                
+                // Tilføj balancevurdering
+                if (fishBalance < 0.3) {
+                    speciesAssessment += "Fiskebalance: Mange byttefisk i forhold til rovfisk.<br>";
+                } else if (fishBalance > 0.7) {
+                    speciesAssessment += "Fiskebalance: Mange rovfisk i forhold til byttefisk.<br>";
+                } else {
+                    speciesAssessment += "Fiskebalance: God balance mellem rovfisk og byttefisk.<br>";
+                }
+                
+                speciesAssessment += "</p>";
+            }
+            
+            // Vis konklusion
+            const conclusionDiv = document.getElementById('conclusion');
+            const conclusionText = document.getElementById('conclusion-text');
+            
+            conclusionDiv.style.display = 'block';
+            conclusionText.innerHTML = `
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <span class="score-indicator ${colorClass}"></span>
+                    <strong style="font-size: 1.2em;">${conclusion}</strong>
+                </div>
+                <p><strong>Gennemsnitlig score:</strong> ${avgScore.toFixed(1)}/3.0</p>
+                ${chemicalAssessment}
+                ${speciesAssessment}
+                <p><strong>Anbefaling:</strong> ${getRecommendation(quality)}</p>
+            `;
+            
+            // Gem kvalitet til formular
+            document.getElementById('quality').value = quality;
+        }
+        
+        // Hent antal tekst
+        function getCountText(count) {
+            switch(count) {
+                case 'few': return 'få';
+                case 'some': return 'nogle';
+                case 'many': return 'mange';
+                default: return 'ikke angivet';
+            }
+        }
+        
+        // Hent anbefaling baseret på kvalitet
+        function getRecommendation(quality) {
+            switch(quality) {
+                case 'good':
+                    return "Fortsæt med at overvåge søen regelmæssigt for at bevare den gode vandkvalitet.";
+                case 'medium':
+                    return "Undersøg mulige kilder til forurening og overvej at træffe foranstaltninger for at forbedre vandkvaliteten.";
+                case 'poor':
+                    return "Kontakt relevante myndigheder og iværksæt foranstaltninger for at forbedre vandkvaliteten. Undgå kontakt med vandet.";
+                default:
+                    return "";
+            }
+        }
+        
+        // Formularhåndtering
+        document.getElementById('observation-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Skjul tidligere fejlmeddelelser
+            document.getElementById('error-message').style.display = 'none';
+            
+            // Tjek om lokation er valgt
+            const lat = document.getElementById('latitude').value;
+            const lng = document.getElementById('longitude').value;
+            
+            if (!lat || !lng) {
+                showError('Du skal vælge en lokation på kortet!');
+                return;
+            }
+            
+            // Tjek om der er mindst én fugle- eller fiskeobservation
+            const birdRows = document.querySelectorAll('#bird-observations .species-row');
+            const fishRows = document.querySelectorAll('#fish-observations .species-row');
+            
+            let hasValidBird = false;
+            let hasValidFish = false;
+            
+            birdRows.forEach(row => {
+                const speciesSelect = row.querySelector('.bird-species');
+                const countSelect = row.querySelector('.bird-count');
+                if (speciesSelect.value && countSelect.value) {
+                    hasValidBird = true;
+                }
+            });
+            
+            fishRows.forEach(row => {
+                const speciesSelect = row.querySelector('.fish-species');
+                const countSelect = row.querySelector('.fish-count');
+                if (speciesSelect.value && countSelect.value) {
+                    hasValidFish = true;
+                }
+            });
+            
+            if (!hasValidBird && !hasValidFish) {
+                showError('Du skal indtaste mindst én fugle- eller fiskeobservation!');
+                return;
+            }
+            
+            // Saml fugleobservationer
+            let birdObservations = [];
+            
+            birdRows.forEach(row => {
+                const speciesSelect = row.querySelector('.bird-species');
+                const countSelect = row.querySelector('.bird-count');
+                const otherInput = row.querySelector('.bird-other');
+                
+                if (speciesSelect.value && countSelect.value) {
+                    let speciesName = '';
+                    if (speciesSelect.value === 'other') {
+                        speciesName = otherInput.value || 'Anden art';
+                    } else {
+                        const speciesMap = {
+                            'swan': 'Svane',
+                            'grayduck': 'Gråand',
+                            'grebecrested': 'Toppet lappedykker',
+                            'heron': 'Gråhejre',
+                            'gull': 'Hættemåge'
+                        };
+                        speciesName = speciesMap[speciesSelect.value] || speciesSelect.value;
+                    }
+                    
+                    birdObservations.push({
+                        species: speciesName,
+                        count: countSelect.value
+                    });
+                }
+            });
+            
+            // Saml fiskeobservationer
+            let fishObservations = [];
+            
+            fishRows.forEach(row => {
+                const speciesSelect = row.querySelector('.fish-species');
+                const countSelect = row.querySelector('.fish-count');
+                const otherInput = row.querySelector('.fish-other');
+                
+                if (speciesSelect.value && countSelect.value) {
+                    let speciesName = '';
+                    let fishType = '';
+                    
+                    if (speciesSelect.value === 'other') {
+                        speciesName = otherInput.value || 'Anden art';
+                        fishType = 'unknown';
+                    } else {
+                        const speciesMap = {
+                            'perch': { name: 'Aborre', type: 'predator' },
+                            'pike': { name: 'Gedde', type: 'predator' },
+                            'rudd': { name: 'Skalle', type: 'prey' },
+                            'bream': { name: 'Brasen', type: 'prey' },
+                            'trout': { name: 'Søørred', type: 'predator' }
+                        };
+                        speciesName = speciesMap[speciesSelect.value].name;
+                        fishType = speciesMap[speciesSelect.value].type;
+                    }
+                    
+                    fishObservations.push({
+                        species: speciesName,
+                        type: fishType,
+                        count: countSelect.value
+                    });
+                }
+            });
+            
+            const observation = {
+                studentName: document.getElementById('student-name').value,
+                location: document.getElementById('location').value,
+                date: document.getElementById('date').value,
+                latitude: parseFloat(lat),
+                longitude: parseFloat(lng),
+                quality: document.getElementById('quality').value,
+                secchiDepth: parseInt(document.getElementById('secchi-depth').value) || 0,
+                waterClarity: document.getElementById('water-clarity').value,
+                waterColor: document.getElementById('water-color').value,
+                waterSmell: document.getElementById('water-smell').value,
+                plants: document.getElementById('plants').value,
+                observations: document.getElementById('observations').value,
+                // Nye kemiske målinger
+                phValue: parseFloat(document.getElementById('ph-value').value),
+                phosphateLevel: parseFloat(document.getElementById('phosphate-level').value),
+                nitrateLevel: parseFloat(document.getElementById('nitrate-level').value),
+                // Artsobservationer
+                birdObservations: birdObservations,
+                fishObservations: fishObservations,
+                conclusion: document.getElementById('conclusion-text').textContent,
+                timestamp: Date.now()
+            };
+            
+            // Gem i Firebase
+            saveObservation(observation)
+                .then(() => {
+                    // Vis succesbesked
+                    document.getElementById('success-message').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('success-message').style.display = 'none';
+                    }, 3000);
+                    
+                    // Nulstil formular
+                    document.getElementById('observation-form').reset();
+                    document.getElementById('date').valueAsDate = new Date();
+                    document.getElementById('conclusion').style.display = 'none';
+                    document.getElementById('location-status').textContent = 'Klik på kortet for at vælge lokation';
+                    document.getElementById('location-status').style.color = '';
+                    
+                    // Nulstil balance-indikator
+                    document.getElementById('balance-marker').style.left = '50%';
+                    
+                    // Nulstil fugle og fisk observationer
+                    document.getElementById('bird-observations').innerHTML = `
+                        <div class="species-row">
+                            <select class="bird-species">
+                                <option value="">Vælg fugleart</option>
+                                <option value="swan">Svane</option>
+                                <option value="grayduck">Gråand</option>
+                                <option value="grebecrested">Toppet lappedykker</option>
+                                <option value="heron">Gråhejre</option>
+                                <option value="gull">Hættemåge</option>
+                                <option value="other">Anden art</option>
+                            </select>
+                            <input type="text" class="bird-other" placeholder="Angiv art" style="display: none;">
+                            <select class="bird-count">
+                                <option value="">Antal</option>
+                                <option value="few">Få</option>
+                                <option value="some">Nogle</option>
+                                <option value="many">Mange</option>
+                            </select>
+                            <button type="button" onclick="removeSpeciesRow(this)" style="display: none;">Fjern</button>
+                        </div>
+                    `;
+                    
+                    document.getElementById('fish-observations').innerHTML = `
+                        <div class="species-row">
+                            <select class="fish-species">
+                                <option value="">Vælg fiskeart</option>
+                                <option value="perch">Aborre (rovfisk)</option>
+                                <option value="pike">Gedde (rovfisk)</option>
+                                <option value="rudd">Skalle (byttefisk)</option>
+                                <option value="bream">Brasen (byttefisk)</option>
+                                <option value="trout">Søørred</option>
+                                <option value="other">Anden art</option>
+                            </select>
+                            <input type="text" class="fish-other" placeholder="Angiv art" style="display: none;">
+                            <select class="fish-count">
+                                <option value="">Antal</option>
+                                <option value="few">Få</option>
+                                <option value="some">Nogle</option>
+                                <option value="many">Mange</option>
+                            </select>
+                            <button type="button" onclick="removeSpeciesRow(this)" style="display: none;">Fjern</button>
+                        </div>
+                    `;
+                    
+                    // Tilføj event listeners igen
+                    addEventListenersToSpeciesRows();
+                    
+                    // Fjern markør fra kort
+                    if (selectedMarker) {
+                        inputMap.removeLayer(selectedMarker);
+                        selectedMarker = null;
+                    }
+                })
+                .catch(error => {
+                    showError('Fejl ved gemning af observation: ' + error.message);
+                });
+        });
+        
+        // Vis fejlmeddelelse
+        function showError(message) {
+            document.getElementById('error-text').textContent = message;
+            document.getElementById('error-message').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('error-message').style.display = 'none';
+            }, 5000);
+        }
+        
+        // Kortinitialisering
+        let map;
+        let mapInitialized = false;
+        
+        function initMap() {
+            if (mapInitialized) {
+                // Kort er allerede initialiseret, opdater størrelse
+                map.invalidateSize();
+                return;
+            }
+            
+            // Gentofte Kommune koordinater
+            map = L.map('map').setView([55.7709, 12.5734], 12);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            mapInitialized = true;
+        }
+        
+        // Indlæs kortdata
+        function loadMapData() {
+            if (!mapInitialized) {
+                initMap();
+            }
+            
+            // Ryd eksisterende markører
+            map.eachLayer(layer => {
+                if (layer instanceof L.Marker || layer instanceof L.Circle) {
+                    map.removeLayer(layer);
+                }
+            });
+            
+            getObservations()
+                .then(observations => {
+                    if (observations.length === 0) {
+                        // Ingen observationer at vise
+                        return;
+                    }
+                    
+                    observations.forEach(obs => {
+                        if (obs.latitude && obs.longitude) {
+                            // Bestem farve baseret på kvalitet
+                            let color, icon;
+                            switch(obs.quality) {
+                                case 'good':
+                                    color = '#2ecc71';
+                                    icon = 'fa-check-circle';
+                                    break;
+                                case 'medium':
+                                    color = '#f39c12';
+                                    icon = 'fa-exclamation-circle';
+                                    break;
+                                case 'poor':
+                                    color = '#e74c3c';
+                                    icon = 'fa-times-circle';
+                                    break;
+                                default:
+                                    color = '#3498db';
+                                    icon = 'fa-question-circle';
+                            }
+                            
+                            // Opret markør
+                            const marker = L.marker([obs.latitude, obs.longitude]).addTo(map);
+                            
+                            // Opret popup
+                            let popupContent = `
+                                <div style="text-align: center;">
+                                    <h3>${obs.location}</h3>
+                                    <div style="margin: 10px 0;">
+                                        <span class="quality-badge" style="background-color: ${color};">
+                                            ${getQualityText(obs.quality)}
+                                        </span>
+                                    </div>
+                                    <p><strong>Dato:</strong> ${obs.date}</p>
+                                    <p><strong>Elev:</strong> ${obs.studentName || 'Ikke angivet'}</p>
+                                    <p><strong>Secchi-dybde:</strong> ${obs.secchiDepth || 'Ikke målt'} cm</p>
+                                    <p><strong>Vandklarhed:</strong> ${getWaterClarityText(obs.waterClarity)}</p>
+                            `;
+                            
+                            // Tilføj kemiske målinger hvis de findes
+                            if (obs.phValue || obs.phosphateLevel || obs.nitrateLevel) {
+                                popupContent += '<p><strong>Kemiske målinger:</strong><br>';
+                                if (obs.phValue) popupContent += `pH: ${obs.phValue}<br>`;
+                                if (obs.phosphateLevel) popupContent += `Fosfat: ${obs.phosphateLevel} ppm<br>`;
+                                if (obs.nitrateLevel) popupContent += `Nitrat: ${obs.nitrateLevel} ppm<br>`;
+                                popupContent += '</p>';
+                            }
+                            
+                            // Tilføj artsobservationer hvis de findes
+                            if (obs.birdObservations && obs.birdObservations.length > 0) {
+                                popupContent += '<p><strong>Fugleobservationer:</strong><br>';
+                                obs.birdObservations.forEach(bird => {
+                                    popupContent += `${bird.species}: ${getCountText(bird.count)}<br>`;
+                                });
+                                popupContent += '</p>';
+                            }
+                            
+                            if (obs.fishObservations && obs.fishObservations.length > 0) {
+                                popupContent += '<p><strong>Fiskeobservationer:</strong><br>';
+                                obs.fishObservations.forEach(fish => {
+                                    popupContent += `${fish.species}: ${getCountText(fish.count)}<br>`;
+                                });
+                                popupContent += '</p>';
+                            }
+                            
+                            popupContent += `<p><strong>Observationer:</strong> ${obs.observations || 'Ingen bemærkninger'}</p></div>`;
+                            
+                            marker.bindPopup(popupContent);
+                            
+                            // Tilføj farvet cirkel til markør
+                            const circle = L.circle([obs.latitude, obs.longitude], {
+                                color: color,
+                                fillColor: color,
+                                fillOpacity: 0.5,
+                                radius: 200
+                            }).addTo(map);
+                        }
+                    });
+                    
+                    // Juster kortet til at vise alle markører
+                    if (observations.length > 0) {
+                        const group = new L.featureGroup(map._layers);
+                        map.fitBounds(group.getBounds().pad(0.1));
+                    }
+                })
+                .catch(error => {
+                    console.error('Fejl ved indlæsning af observationer:', error);
+                });
+        }
+        
+        // Hent kvalitetstekst
+        function getQualityText(quality) {
+            switch(quality) {
+                case 'good': return 'God';
+                case 'medium': return 'Middel';
+                case 'poor': return 'Dårlig';
+                default: return 'Ukendt';
+            }
+        }
+        
+        // Hent vandklarhedstekst
+        function getWaterClarityText(clarity) {
+            switch(clarity) {
+                case 'clear': return 'Klar';
+                case 'slightly-cloudy': return 'Let uklar';
+                case 'cloudy': return 'Meget uklar';
+                default: return 'Ikke angivet';
+            }
+        }
+        
+        // Admin-login
+        function adminLogin() {
+            const password = document.getElementById('admin-password').value;
+            
+            // Simuleret adgangskode - i praksis bør du bruge en mere sikker metode
+            if (password === 'lærer123') {
+                document.getElementById('login-area').style.display = 'none';
+                document.getElementById('admin-content').style.display = 'block';
+                loadAdminData();
+            } else {
+                alert('Forkert adgangskode!');
+            }
+        }
+        
+        // Admin-logout
+        function logoutAdmin() {
+            document.getElementById('login-area').style.display = 'block';
+            document.getElementById('admin-content').style.display = 'none';
+            document.getElementById('admin-password').value = '';
+        }
+        
+        // Indlæs admin-data
+        function loadAdminData() {
+            getObservations()
+                .then(observations => {
+                    const tableBody = document.getElementById('admin-data');
+                    tableBody.innerHTML = '';
+                    
+                    observations.forEach(obs => {
+                        const row = document.createElement('tr');
+                        
+                        // Bestem farve baseret på kvalitet
+                        let qualityClass;
+                        switch(obs.quality) {
+                            case 'good': qualityClass = 'quality-good'; break;
+                            case 'medium': qualityClass = 'quality-medium'; break;
+                            case 'poor': qualityClass = 'quality-poor'; break;
+                            default: qualityClass = '';
+                        }
+                        
+                        row.innerHTML = `
+                            <td>${obs.location}</td>
+                            <td>${obs.date}</td>
+                            <td><span class="quality-badge ${qualityClass}">${getQualityText(obs.quality)}</span></td>
+                            <td>${obs.studentName || 'Ikke angivet'}</td>
+                            <td>
+                                <button class="btn" onclick="viewDetails('${obs.id}')">
+                                    <i class="fas fa-eye"></i> Se
+                                </button>
+                                <button class="btn btn-danger" onclick="deleteObservationById('${obs.id}')">
+                                    <i class="fas fa-trash"></i> Slet
+                                </button>
+                            </td>
+                        `;
+                        
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Fejl ved indlæsning af admin data:', error);
+                });
+        }
+        
+        // Se detaljer
+        function viewDetails(id) {
+            getObservations()
+                .then(observations => {
+                    const obs = observations.find(o => o.id === id);
+                    
+                    if (obs) {
+                        const modal = document.getElementById('detail-modal');
+                        const content = document.getElementById('modal-content');
+                        
+                        let qualityClass;
+                        switch(obs.quality) {
+                            case 'good': qualityClass = 'quality-good'; break;
+                            case 'medium': qualityClass = 'quality-medium'; break;
+                            case 'poor': qualityClass = 'quality-poor'; break;
+                            default: qualityClass = '';
+                        }
+                        
+                        let detailsHTML = `
+                            <div class="form-group">
+                                <label>Sted:</label>
+                                <p><strong>${obs.location}</strong></p>
+                            </div>
+                            <div class="form-group">
+                                <label>Dato:</label>
+                                <p>${obs.date}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Vandkvalitet:</label>
+                                <p><span class="quality-badge ${qualityClass}">${getQualityText(obs.quality)}</span></p>
+                            </div>
+                            <div class="form-group">
+                                <label>Elev:</label>
+                                <p>${obs.studentName || 'Ikke angivet'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Secchi-dybde:</label>
+                                <p>${obs.secchiDepth || 'Ikke målt'} cm</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Vandklarhed:</label>
+                                <p>${getWaterClarityText(obs.waterClarity)}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Vandfarve:</label>
+                                <p>${obs.waterColor || 'Ikke angivet'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Lugt:</label>
+                                <p>${obs.waterSmell || 'Ikke angivet'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Planter:</label>
+                                <p>${obs.plants || 'Ikke angivet'}</p>
+                            </div>
+                        `;
+                        
+                        // Tilføj kemiske målinger
+                        if (obs.phValue || obs.phosphateLevel || obs.nitrateLevel) {
+                            detailsHTML += `
+                                <div class="form-group">
+                                    <label>Kemiske målinger:</label>
+                                    <p>
+                                        ${obs.phValue ? `pH: ${obs.phValue}<br>` : ''}
+                                        ${obs.phosphateLevel ? `Fosfat: ${obs.phosphateLevel} ppm<br>` : ''}
+                                        ${obs.nitrateLevel ? `Nitrat: ${obs.nitrateLevel} ppm<br>` : ''}
+                                    </p>
+                                </div>
+                            `;
+                        }
+                        
+                        // Tilføj fugleobservationer
+                        if (obs.birdObservations && obs.birdObservations.length > 0) {
+                            detailsHTML += `
+                                <div class="form-group">
+                                    <label>Fugleobservationer:</label>
+                                    <p>
+                            `;
+                            
+                            obs.birdObservations.forEach(bird => {
+                                detailsHTML += `${bird.species}: ${getCountText(bird.count)}<br>`;
+                            });
+                            
+                            detailsHTML += `
+                                    </p>
+                                </div>
+                            `;
+                        }
+                        
+                        // Tilføj fiskeobservationer
+                        if (obs.fishObservations && obs.fishObservations.length > 0) {
+                            detailsHTML += `
+                                <div class="form-group">
+                                    <label>Fiskeobservationer:</label>
+                                    <p>
+                            `;
+                            
+                            obs.fishObservations.forEach(fish => {
+                                detailsHTML += `${fish.species} (${fish.type === 'predator' ? 'rovfisk' : 'byttefisk'}): ${getCountText(fish.count)}<br>`;
+                            });
+                            
+                            detailsHTML += `
+                                    </p>
+                                </div>
+                            `;
+                        }
+                        
+                        detailsHTML += `
+                            <div class="form-group">
+                                <label>Andre observationer:</label>
+                                <p>${obs.observations || 'Ingen bemærkninger'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Konklusion:</label>
+                                <p>${obs.conclusion || 'Ingen konklusion'}</p>
+                            </div>
+                        `;
+                        
+                        content.innerHTML = detailsHTML;
+                        
+                        modal.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Fejl ved visning af detaljer:', error);
+                });
+        }
+        
+        // Slet observation
+        function deleteObservationById(id) {
+            if (confirm('Er du sikker på, du vil slette denne observation?')) {
+                deleteObservation(id)
+                    .then(() => {
+                        loadAdminData();
+                        if (mapInitialized) {
+                            loadMapData();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fejl ved sletning af observation:', error);
+                        alert('Fejl ved sletning af observation');
+                    });
+            }
+        }
+        
+        // Luk modal
+        document.querySelector('.close').addEventListener('click', function() {
+            document.getElementById('detail-modal').style.display = 'none';
+        });
+        
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('detail-modal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // Håndter vinduesstørrelsesændringer
+        window.addEventListener('resize', function() {
+            if (mapInitialized && document.getElementById('map-tab').classList.contains('active')) {
+                map.invalidateSize();
+            }
+            if (inputMap && document.getElementById('input-tab').classList.contains('active')) {
+                inputMap.invalidateSize();
+            }
+        });
+    </script>
+
+
+            <script>// Write JavaScript here</script>
+        
+    
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration>
