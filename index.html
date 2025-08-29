@@ -1,12 +1,6 @@
 <!DOCTYPE html>
-<html>
+<html lang="da">
 <head>
-            <style>.lw { font-size: 60px; }</style>
-        <link id="appwriter-cloud-style" type="text/css" rel="stylesheet" href="chrome-extension://lokadhdaghfjbmailhhenifjejpokche/css/content.css"></head>
-        <body data-new-gr-c-s-check-loaded="14.1250.0" data-gr-ext-installed="">
-            
-
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vandkvalitet i Gentofte Kommune – forbedret</title>
@@ -60,8 +54,8 @@
     .add-species-btn:hover{ background:#218838 }
     .info-box{ background:#e8f4fc; border-left:4px solid #1a75bc; padding:10px 12px; border-radius:0 8px 8px 0; font-size:14px }
   </style>
-
-
+</head>
+<body>
   <div class="container">
     <header>
       <h1><i class="fas fa-water"></i> Vandkvalitet i Gentofte Kommune</h1>
@@ -87,20 +81,20 @@
 
         <div class="form-group">
           <label for="location">Sted (sø/vandløb)</label>
-          <input type="text" id="location" placeholder="F.eks. Gentofte Sø" required="">
+          <input type="text" id="location" placeholder="F.eks. Gentofte Sø" required>
         </div>
 
         <div class="form-group">
           <label>Vælg lokation på kortet</label>
           <div id="input-map"></div>
-          <input type="hidden" id="latitude" required="">
-          <input type="hidden" id="longitude" required="">
+          <input type="hidden" id="latitude" required>
+          <input type="hidden" id="longitude" required>
           <small id="location-status">Klik på kortet for at vælge lokation</small>
         </div>
 
         <div class="form-group">
           <label for="date">Dato for observation</label>
-          <input type="date" id="date" required="">
+          <input type="date" id="date" required>
         </div>
 
         <div class="observation-grid">
@@ -113,7 +107,7 @@
             </div>
             <div class="form-group">
               <label for="water-clarity">Vandets klarhed</label>
-              <select id="water-clarity" required="">
+              <select id="water-clarity" required>
                 <option value="">Vælg</option>
                 <option value="clear">Klar</option>
                 <option value="slightly-cloudy">Let uklar</option>
@@ -122,7 +116,7 @@
             </div>
             <div class="form-group">
               <label for="water-color">Vandets farve</label>
-              <select id="water-color" required="">
+              <select id="water-color" required>
                 <option value="">Vælg</option>
                 <option value="clear">Klar/gennemsigtig</option>
                 <option value="green">Grøn</option>
@@ -133,7 +127,7 @@
             </div>
             <div class="form-group">
               <label for="water-smell">Vandets lugt</label>
-              <select id="water-smell" required="">
+              <select id="water-smell" required>
                 <option value="">Vælg</option>
                 <option value="none">Ingen</option>
                 <option value="earthy">Jordagtig</option>
@@ -200,7 +194,7 @@
             <h3><i class="fas fa-comment"></i> Andre observationer</h3>
             <div class="form-group">
               <label for="plants">Planter ved bredden</label>
-              <select id="plants" required="">
+              <select id="plants" required>
                 <option value="">Vælg</option>
                 <option value="many">Mange sunde planter</option>
                 <option value="some">Nogle planter</option>
@@ -251,36 +245,28 @@
     </div>
   </div>
 
-  <!-- Vendor libs -->
+  <!-- Vendor libs (compat SDKs) -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
+    // ---- Firebase konfiguration (bruger dine værdier) ----
+    const firebaseConfig = {
+      apiKey: "AIzaSyC5V7rLqqgKk-WXgzFKDvLR-UnWcCtV2RA",
+      authDomain: "vandkvalitet-gentofte.firebaseapp.com",
+      databaseURL: "https://vandkvalitet-gentofte-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "vandkvalitet-gentofte",
+      storageBucket: "vandkvalitet-gentofte.appspot.com", // rettet domæne
+      messagingSenderId: "453693095285",
+      appId: "1:453693095285:web:1e8b1e734034e65e9a273c"
+    };
 
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyC5V7rLqqgKk-WXgzFKDvLR-UnWcCtV2RA",
-  authDomain: "vandkvalitet-gentofte.firebaseapp.com",
-  databaseURL: "https://vandkvalitet-gentofte-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "vandkvalitet-gentofte",
-  storageBucket: "vandkvalitet-gentofte.firebasestorage.app",
-  messagingSenderId: "453693095285",
-  appId: "1:453693095285:web:1e8b1e734034e65e9a273c"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
+    // ---- Init (kun compat, ingen ESM imports) ----
     let useFirebase = true;
     try {
       firebase.initializeApp(firebaseConfig);
-      if (!firebaseConfig.databaseURL || firebaseConfig.databaseURL.includes('DIN_')) {
+      if (!firebaseConfig.databaseURL) {
         useFirebase = false; // manglende config => brug localStorage
       }
     } catch(e) { useFirebase = false; }
@@ -372,37 +358,32 @@ const app = initializeApp(firebaseConfig);
       localStorage.setItem('observations', JSON.stringify(arr));
     }
 
-    // ===== Videnskabeligt funderet scoring (kemi vægtes højest) =====
+    // ===== Scoring (kemi vægtes højest) =====
     function computeScores(){
       const ph = parseFloat($('ph-value').value);
       const po4 = parseFloat($('phosphate-level').value);
       const no3 = parseFloat($('nitrate-level').value);
       const secchi = parseFloat($('secchi-depth').value);
-      const plants = $('plants').value; // many/some/few
-      const clarity = $('water-clarity').value; // clear/slightly-cloudy/cloudy
+      const plants = $('plants').value;
+      const clarity = $('water-clarity').value;
 
-      // Del-scorer 0..1 hvor 1 er bedst
-      // Kemi (60%): lav fosfat/nitrat, pH ~ 7–8 (let basisk i søer er ofte OK)
       let chem = 0.5;
       if (!isNaN(po4)) chem += po4 < 0.05 ? 0.3 : po4 <= 0.1 ? 0.15 : po4 <= 0.2 ? 0.05 : -0.2;
       if (!isNaN(no3)) chem += no3 < 1 ? 0.2 : no3 <= 5 ? 0.1 : -0.2;
       if (!isNaN(ph)) { const dp = Math.abs(ph - 7.5); chem += dp < 0.5 ? 0.1 : dp < 1 ? 0.05 : -0.1; }
       chem = Math.max(0, Math.min(1, chem));
 
-      // Sigt/visuelle (25%): høj Secchi, klar → god
       let visual = 0.5;
       if (!isNaN(secchi)) visual += secchi >= 200 ? 0.3 : secchi >= 100 ? 0.15 : -0.15;
       if (clarity) visual += clarity === 'clear' ? 0.15 : clarity === 'slightly-cloudy' ? 0.0 : -0.15;
       visual = Math.max(0, Math.min(1, visual));
 
-      // Biologi (15%): plantesamfund som proxy
       let bio = 0.5 + (plants==='many'?0.3:plants==='some'?0.1:-0.2);
       bio = Math.max(0, Math.min(1, bio));
 
       const total = 0.6*chem + 0.25*visual + 0.15*bio;
       const quality = total >= 0.67 ? 'good' : total >= 0.4 ? 'medium' : 'poor';
 
-      // Iltsvindsrisiko (simpel matrix ud fra kemi)
       let hypoxia = 'Ukendt';
       if (!isNaN(po4) && !isNaN(no3)) {
         if (no3 > 5 && po4 > 0.2) hypoxia = 'Meget høj';
@@ -423,12 +404,10 @@ const app = initializeApp(firebaseConfig);
       $('conclusion').style.display = 'block';
     }
 
-    // Event listeners til felter der påvirker konklusionen
     ['ph-value','phosphate-level','nitrate-level','secchi-depth','water-clarity','plants'].forEach(id =>
       $(id).addEventListener('change', updateConclusion)
     );
 
-    // ===== Dynamiske artsrækker =====
     function makeSpeciesRow(type){
       const wrapper = document.createElement('div');
       wrapper.className = 'species-row';
@@ -444,13 +423,15 @@ const app = initializeApp(firebaseConfig);
       wrapper.append(sel, other, count, rm);
       return wrapper;
     }
-    $('add-bird-btn').addEventListener('click', ()=> $('bird-observations').appendChild(makeSpeciesRow('bird')));
-    $('add-fish-btn').addEventListener('click', ()=> {
-      const row = makeSpeciesRow('fish');
-      $('fish-observations').appendChild(row);
-      updateFishBalance();
-      row.querySelector('select').addEventListener('change', updateFishBalance);
-      row.querySelectorAll('select').forEach(s=> s.addEventListener('change', updateFishBalance));
+    document.addEventListener('click', (e)=>{
+      if (e.target && e.target.id === 'add-bird-btn') $('bird-observations').appendChild(makeSpeciesRow('bird'));
+      if (e.target && e.target.id === 'add-fish-btn') {
+        const row = makeSpeciesRow('fish');
+        $('fish-observations').appendChild(row);
+        updateFishBalance();
+        row.querySelector('select').addEventListener('change', updateFishBalance);
+        row.querySelectorAll('select').forEach(s=> s.addEventListener('change', updateFishBalance));
+      }
     });
 
     function updateFishBalance(){
@@ -459,27 +440,25 @@ const app = initializeApp(firebaseConfig);
       rows.forEach(r => {
         const sp = r.querySelector('.fish-species')?.value;
         const ct = r.querySelector('.fish-count')?.value;
-        const w = ct==='many'?2:ct==='some'?1:ct==='few'?0.5:0; // vægt
-        if (['perch','pike'].includes(sp)) predators += w; else if (['rudd','bream','trout'].includes(sp)) prey += w; // simple proxy
+        const w = ct==='many'?2:ct==='some'?1:ct==='few'?0.5:0;
+        if (['perch','pike'].includes(sp)) predators += w; else if (['rudd','bream','trout'].includes(sp)) prey += w;
       });
       const total = predators + prey;
-      const ratio = total ? predators/total : 0.5; // 0..1
+      const ratio = total ? predators/total : 0.5;
       $('balance-marker').style.left = (ratio*100)+'%';
     }
 
-    // ===== Formular-submit (FIKSER at data ikke blev gemt) =====
     $('observation-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       try {
-        updateConclusion(); // sikr at quality er sat
+        updateConclusion();
         const observation = collectObservation();
-        const saved = await saveObservation(observation);
+        await saveObservation(observation);
         notify($('success-message'), true);
         setTimeout(()=>notify($('success-message'), false), 2000);
         e.target.reset();
         $('conclusion').style.display = 'none';
-        initMap(); // opdatér kort
-        if (!useFirebase) console.info('Gemte i localStorage (udfyld Firebase for permanent lagring).');
+        initMap();
       } catch(err){
         console.error(err);
         notify($('error-message'), true, 'Kunne ikke gemme. Tjek internet/Firebase-konfiguration.');
@@ -498,7 +477,7 @@ const app = initializeApp(firebaseConfig);
         count: r.querySelector('.fish-count')?.value||''
       })).filter(x=>x.species||x.other);
 
-      const o = {
+      return {
         student: $('student-name').value || null,
         location: $('location').value,
         latitude: $('latitude').value || null,
@@ -513,11 +492,9 @@ const app = initializeApp(firebaseConfig);
         quality: $('quality').value || null,
         scores: computeScores()
       };
-      return o;
     }
 
-    // ===== Admin =====
-    const ADMIN_PASSWORD = 'admin123'; // TODO: flyt til miljøvariabel/server-side i rigtig produktion
+    const ADMIN_PASSWORD = 'admin123';
     $('admin-login-btn').addEventListener('click', async ()=>{
       if ($('admin-password').value === ADMIN_PASSWORD){
         $('login-area').style.display='none';
@@ -551,19 +528,13 @@ const app = initializeApp(firebaseConfig);
       $('map-loading').style.display = 'none';
     }
 
-    // ===== Init =====
     document.addEventListener('DOMContentLoaded', () => {
       $('date').valueAsDate = new Date();
       initInputMap();
       // Første artsrækker
-      $('add-bird-btn').click();
-      $('add-fish-btn').click();
+      document.getElementById('add-bird-btn').click();
+      document.getElementById('add-fish-btn').click();
     });
   </script>
-
-
-
-            <script>// Write JavaScript here</script>
-        
-    
-</body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration>
+</body>
+</html>
