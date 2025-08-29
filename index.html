@@ -549,14 +549,22 @@
     // ===== Formular-submit =====
     $('observation-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+      // Klientside validering (viser pæn fejl i stedet for "ingenting sker")
+      const form = e.target;
+      if (!form.checkValidity()) { form.reportValidity(); return; }
       try {
         updateConclusion(); // sikr at quality er sat
         const observation = collectObservation();
         const saved = await saveObservation(observation);
         notify($('success-message'), true);
         setTimeout(()=>notify($('success-message'), false), 2000);
-        // behold felter synlige, så eleven kan læse forklaringen
         $('conclusion').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        initMap(); // opdatér kort
+      } catch(err){
+        console.error(err);
+        notify($('error-message'), true, 'Kunne ikke gemme. Tjek internet/Firebase-konfiguration.');
+      }
+    });
         initMap(); // opdatér kort
       } catch(err){
         console.error(err);
@@ -649,7 +657,12 @@
 
     // ===== Init =====
     document.addEventListener('DOMContentLoaded', () => {
-      $('date').valueAsDate = new Date();
+      // Sæt dato (iOS/Safari fallback)
+      (function setToday(){
+        const d = $('date');
+        try { d.valueAsDate = new Date(); } catch(_) {}
+        if (!d.value) { d.value = new Date().toISOString().slice(0,10); }
+      })();
       initInputMap();
       showStatusBar(); // kan slås fra ved at fjerne denne linje
       // Første artsrækker
